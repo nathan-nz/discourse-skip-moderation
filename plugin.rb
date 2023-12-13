@@ -1,28 +1,33 @@
-# name: discourse-forcemoderation
-# about: Force posts from specified usernames to go through moderation.
-# version: 0.3
-# authors: Leo Davidson
-# url: https://github.com/leodavidson/discourse-forcemoderation
+#plugin.rb
+# name: discourse-skipmoderation
+# about: Skip posts from specified categories and groups to go through moderation.
+# version: 0.4
+# authors: Leo Davidson, Nathan Kershaw
+# url: https://github.com/leodavidson/discourse-skipmoderation
 
-enabled_site_setting :force_moderation_enabled
+enabled_site_setting :skip_moderation_enabled
 
 after_initialize do
 
-  module ::DiscourseForceModeration
+  module ::DiscourseSkipModeration
     def post_needs_approval?(manager)
       superResult = super
-      return superResult if ((!(SiteSetting.force_moderation_enabled)) || (superResult != :skip))
+      return superResult if ((!(SiteSetting.skip_moderation_enabled)) || (superResult != :skip))
 
-      if SiteSetting.force_moderation_users.is_a? String
-        userName = manager.user.username.downcase
-        userArray = SiteSetting.force_moderation_users.downcase.split("|")
-        return :trust_level if (userArray.include? userName)
+      if SiteSetting.skip_moderation_groups_categories.is_a? String
+        categoryName = manager.category.name.downcase
+        groupName = manager.group.name.downcase
+        groupCategoryArray = SiteSetting.skip_moderation_groups_categories.downcase.split("|")
+        groupCategoryArray.each do |groupCategory|
+          group, category = groupCategory.split(":")
+          return :skip if group == groupName and category == categoryName
+        end
       end
 
-      return :skip
+      return :trust_level
     end
   end
 
-  NewPostManager.singleton_class.prepend ::DiscourseForceModeration
+  NewPostManager.singleton_class.prepend ::DiscourseSkipModeration
 
 end

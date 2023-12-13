@@ -9,25 +9,23 @@ enabled_site_setting :skip_moderation_enabled
 
 after_initialize do
   module ::DiscourseSkipModeration
-    def create_post
-      if SiteSetting.skip_moderation_enabled && SiteSetting.skip_moderation_groups_categories.is_a?(String)
-        groupName = @opts[:user].groups.pluck(:name).map(&:downcase)
-        Rails.logger.info("Skip moderation: groupName = #{groupName}")
-        categoryName = @opts[:category].downcase
-        Rails.logger.info("Skip moderation: categoryName = #{categoryName}")
+    def post_needs_approval?(manager)
+      superResult = super
+      return superResult if ((!(SiteSetting.skip_moderation_enabled)) || (superResult != :skip))
+
+      if SiteSetting.skip_moderation_groups_categories.is_a? String
+        groupName = manager.user.groups.pluck(:name).map(&:downcase)
+        categoryName = manager.args[:category].downcase
         groupCategoryArray = SiteSetting.skip_moderation_groups_categories.downcase.split("|")
-        Rails.logger.info("Skip moderation: groupCategoryArray = #{groupCategoryArray}")
         groupCategoryArray.each do |groupCategory|
           group, category = groupCategory.split(":")
-          if groupName.include?(group) && category == categoryName
-            @opts[:skip_validations] = true
-            break
-          end
+          return :skip if groupName.include?(group) && category == categoryName
         end
       end
-      super
+
+      return :trust_level
     end
   end
 
-  PostCreator.prepend ::DiscourseSkipModeration
+  NewPostManager.singleton_class.prepend ::DiscourseSkipModeration
 end

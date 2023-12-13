@@ -1,4 +1,4 @@
 en:
   site_settings:
-    force_moderation_enabled: "Enable forcing posts by certain usernames through moderation?"
-    force_moderation_users: "List of usernames whose posts always go through moderation."
+    skip_moderation_enabled: "Enable skipping moderation by certain groups?"
+    skip_moderation_groups_categories: "List of groupslug:categoryslug where the group avoids moderation for that category"

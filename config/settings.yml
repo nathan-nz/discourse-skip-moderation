@@ -1,8 +1,8 @@
 plugins:
-  force_moderation_enabled:
+  skip_moderation_enabled:
     default: false
     client: false
-  force_moderation_users:
+  skip_moderation_groups_categories:
     default: ""
     client: false
     type: list

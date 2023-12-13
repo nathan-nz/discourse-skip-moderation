@@ -1,5 +1,5 @@
 #plugin.rb
-# name: discourse-skipmoderation
+# name: discourse-skip-moderation
 # about: Skip posts from specified categories and groups to go through moderation.
 # version: 0.4
 # authors: Leo Davidson, Nathan Kershaw
